@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { rawBooks, type RawBook, type Status } from "./books";
 import { AddBook } from "./AddBook";
-import { derive, readCoverPalette, STATUS_LABEL, type Book } from "./lib/derive";
+import { derive, groupSeries, readCoverPalette, STATUS_LABEL, type Book } from "./lib/derive";
 import { smartSearch } from "./lib/search";
 import { Shelf } from "./Shelf";
 import { BookDetail } from "./BookDetail";
@@ -27,11 +27,12 @@ export default function App() {
   const [statusF, setStatusF] = useState<Status | null>(null);
   // Reading status and progress are saved in this browser (localStorage).
   const KEY = "virtual-library:status:v1";
-  const [overlay, setOverlay] = useState<Record<string, { status: Status; page: number }>>(() => { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch { return {}; } });
+  const [overlay, setOverlay] = useState<Record<string, { status: Status; page: number; cover?: string }>>(() => { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch { return {}; } });
   useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(overlay)); } catch { /* storage unavailable */ } }, [overlay]);
-  const live = useMemo(() => books.map((b) => (overlay[b.id] ? { ...b, ...overlay[b.id] } : b)), [books, overlay]);
-  const setBookState = (id: string, patch: { status?: Status; page?: number }) => setOverlay((o) => {
-    const b = live.find((x) => x.id === id)!; const next: { status: Status; page: number } = { ...{ status: b.status, page: b.page }, ...(o[id] ?? {}), ...patch } as { status: Status; page: number };
+  const live = useMemo(() => groupSeries(books.map((b) => (overlay[b.id] ? { ...b, status: overlay[b.id].status, page: overlay[b.id].page, ...(overlay[b.id].cover ? { cover: overlay[b.id].cover! } : {}) } : b))), [books, overlay]);
+  const setBookState = (id: string, patch: { status?: Status; page?: number; cover?: string }) => setOverlay((o) => {
+    const b = live.find((x) => x.id === id)!; const next = { ...{ status: b.status, page: b.page }, ...(o[id] ?? {}), ...patch } as { status: Status; page: number; cover?: string };
+    if (patch.cover === "") delete next.cover;
     if (patch.status === "read") next.page = b.pages; if (patch.status === "tbr") next.page = 0;
     return { ...o, [id]: next };
   });
@@ -43,6 +44,7 @@ export default function App() {
       const p = await readCoverPalette(b.cover); if (p) setBooks((cur) => cur.map((x) => (x.id === b.id ? { ...x, ...p } : x))); });
   }, [books.length]); // eslint-disable-line react-hooks/exhaustive-deps
   const addBook = (rb: RawBook) => { setCustom((c) => [rb, ...c]); setBooks((cur) => [derive(rb), ...cur]); setAdding(false); };
+  const recolor = async (id: string, src: string) => { if (!src) return; const p = await readCoverPalette(src); if (p) setBooks((cur) => cur.map((x) => (x.id === id ? { ...x, ...p } : x))); };
   const removeBook = (id: string) => { setCustom((c) => c.filter((b) => b.id !== id)); setBooks((cur) => cur.filter((b) => b.id !== id)); setOpen(null); };
 
   useEffect(() => {
@@ -88,7 +90,7 @@ export default function App() {
           : <p className="empty">No books match. Try different words or clear the genre filter.</p>}
       </main>
       {adding && <AddBook genres={genres} existing={books} onAdd={addBook} onClose={() => setAdding(false)} />}
-      {open && cur && <BookDetail key="detail" book={cur} rect={open.rect} onChange={(p) => setBookState(cur.id, p)} onRemove={cur.id.startsWith("custom-") ? () => removeBook(cur.id) : undefined} onClose={() => setOpen(null)}
+      {open && cur && <BookDetail key="detail" book={cur} rect={open.rect} hasCustomCover={!!overlay[cur.id]?.cover} onChange={(p) => { setBookState(cur.id, p); if (p.cover !== undefined) recolor(cur.id, p.cover || books.find((x) => x.id === cur.id)?.cover || ""); }} onRemove={cur.id.startsWith("custom-") ? () => removeBook(cur.id) : undefined} onClose={() => setOpen(null)}
         onStep={(d) => setOpen({ ...open, i: open.i + d })} canStep={[open.i > 0, open.i < open.ids.length - 1]} />}
     </div>
   );

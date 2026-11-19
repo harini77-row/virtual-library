@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { RawBook, Status } from "./books";
 import { STATUS_LABEL } from "./lib/derive";
+import { fileToCover } from "./lib/cover";
 type Hit = { title: string; author: string; year: number; pages: number; isbn: string; subjects: string[] };
 const GENRE_HINTS: [RegExp, string][] = [[/fantasy|magic/i, "Fantasy"], [/romance|love stor/i, "Romance"], [/mystery|thriller|detective|crime/i, "Mystery & Thriller"], [/science fiction|sci-fi/i, "Sci-Fi"], [/horror|ghost/i, "Horror"], [/young adult|juvenile|teen/i, "Young Adult"], [/nonfiction|biograph|memoir|history|science(?! fiction)/i, "Nonfiction"], [/fiction|novel/i, "Fiction"]];
 const guessGenres = (subs: string[]) => [...new Set(GENRE_HINTS.filter(([re]) => subs.some((s) => re.test(s))).map(([, g]) => g))].slice(0, 3);
@@ -9,6 +10,7 @@ const ALL = ["Fantasy", "Romance", "Mystery & Thriller", "Sci-Fi", "Horror", "Fi
 export function AddBook({ genres, existing, onAdd, onClose }: { genres: string[]; existing: RawBook[]; onAdd: (b: RawBook) => void; onClose: () => void }) {
   const [q, setQ] = useState(""), [hits, setHits] = useState<Hit[]>([]), [busy, setBusy] = useState(false), [note, setNote] = useState("");
   const [f, setF] = useState({ title: "", author: "", year: "", pages: "", isbn: "" });
+  const [cover, setCover] = useState(""), [coverUrl, setCoverUrl] = useState("");
   const [sel, setSel] = useState<string[]>([]), [status, setStatus] = useState<Status>("tbr");
   useEffect(() => { const k = (e: KeyboardEvent) => e.key === "Escape" && onClose(); window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [onClose]);
 
@@ -31,7 +33,7 @@ export function AddBook({ genres, existing, onAdd, onClose }: { genres: string[]
     if (!ok) return;
     const pages = Math.max(0, +f.pages || 0);
     onAdd({ id: `custom-${Date.now().toString(36)}`, title: f.title.trim(), author: f.author.trim(), year: +f.year || 0, pages, isbn: f.isbn.replace(/[^0-9Xx]/g, ""),
-      genres: sel.length ? sel : ["Fiction"], blurb: "", rating: 0, status, page: status === "read" ? pages : 0,
+      cover: cover || (/^https?:\/\//i.test(coverUrl.trim()) ? coverUrl.trim() : undefined), genres: sel.length ? sel : ["Fiction"], blurb: "", rating: 0, status, page: status === "read" ? pages : 0,
       finished: status === "read" ? new Date().toLocaleString("en", { month: "short", year: "numeric" }) : "" });
   };
   const chips = [...new Set([...genres, ...ALL])];
@@ -50,7 +52,10 @@ export function AddBook({ genres, existing, onAdd, onClose }: { genres: string[]
           <label>Pages<input inputMode="numeric" value={f.pages} onChange={(e) => setF({ ...f, pages: e.target.value.replace(/\D/g, "") })} /></label>
           <label>Year<input inputMode="numeric" value={f.year} onChange={(e) => setF({ ...f, year: e.target.value.replace(/\D/g, "") })} /></label>
           <label className="wide">ISBN (for the cover)<input value={f.isbn} onChange={(e) => setF({ ...f, isbn: e.target.value })} /></label>
+          <label>Cover image (optional)<input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (f) { try { setCover(await fileToCover(f)); } catch { setNote("That file isn't an image."); } } }} /></label>
+          <label>or image link<input value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} placeholder="https://…" /></label>
         </div>
+        {cover && <p className="note">Cover chosen ✓</p>}
         <p className="label">Genres</p>
         <div className="status-set">{chips.map((g) => <button key={g} className={sel.includes(g) ? "on" : ""} aria-pressed={sel.includes(g)} onClick={() => setSel(sel.includes(g) ? sel.filter((x) => x !== g) : [...sel, g])}>{g}</button>)}</div>
         <p className="label">Status</p>

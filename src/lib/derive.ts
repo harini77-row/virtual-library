@@ -14,7 +14,7 @@ export function derive(b: RawBook): Book {
   const height = Math.round(binding === "hardcover" ? 236 + r(h, 2) * 18 : binding === "mass" ? 196 + r(h, 2) * 14 : 214 + r(h, 2) * 16);
   const hue = h % 360;
   return {
-    ...b, status: b.status ?? (b.finished ? "read" : "tbr"), page: b.page ?? 0, cover: b.isbn ? `https://covers.openlibrary.org/b/isbn/${b.isbn}-L.jpg?default=false` : "",
+    ...b, status: b.status ?? (b.finished ? "read" : "tbr"), page: b.page ?? 0, cover: b.cover ?? (b.isbn ? `https://covers.openlibrary.org/b/isbn/${b.isbn}-L.jpg?default=false` : ""),
     binding, finish, height, width: Math.round(Math.min(58, Math.max(16, p * 0.055 + r(h, 3) * 4))),
     spine: `hsl(${hue} 32% 28%)`, band: `hsl(${(hue + 30) % 360} 45% 55%)`, ink: "#faf7f0",
     face: (["serif", "sans", "mono"] as const)[h % 3], caps: r(h, 4) > 0.6,
@@ -39,4 +39,15 @@ export function readCoverPalette(src: string): Promise<{ spine: string; band: st
     } catch { res(null); } };
     img.src = src;
   });
+}
+
+// Keeps books of the same series together, in reading order, at the place the series first appears.
+export function groupSeries<T extends { series?: string; seriesNo?: number }>(list: T[]): T[] {
+  const out: T[] = [], done = new Set<string>();
+  for (const b of list) {
+    if (!b.series) { out.push(b); continue; }
+    if (done.has(b.series)) continue; done.add(b.series);
+    out.push(...list.filter((x) => x.series === b.series).sort((a, c) => (a.seriesNo ?? 0) - (c.seriesNo ?? 0)));
+  }
+  return out;
 }

@@ -1,9 +1,13 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { fileToCover } from "./lib/cover";
 import { STATUS_LABEL, type Book } from "./lib/derive";
 import type { Status } from "./books";
-type Props = { book: Book; rect: DOMRect; onChange: (p: { status?: Status; page?: number }) => void; onRemove?: () => void; onClose: () => void; onStep: (d: number) => void; canStep: [boolean, boolean] };
-export function BookDetail({ book: b, rect, onChange, onRemove, onClose, onStep, canStep }: Props) {
+type Props = { book: Book; rect: DOMRect; onChange: (p: { status?: Status; page?: number; cover?: string }) => void; hasCustomCover?: boolean; onRemove?: () => void; onClose: () => void; onStep: (d: number) => void; canStep: [boolean, boolean] };
+export function BookDetail({ book: b, rect, onChange, onRemove, hasCustomCover, onClose, onStep, canStep }: Props) {
   const [out, setOut] = useState(false), [leaving, setLeaving] = useState(false), [coverOk, setCoverOk] = useState(true);
+  const [editCover, setEditCover] = useState(false), [url, setUrl] = useState(""), [coverErr, setCoverErr] = useState("");
+  useEffect(() => { setCoverOk(true); setCoverErr(""); }, [b.cover]);
+  useEffect(() => { setEditCover(false); setUrl(""); }, [b.id]);
   const vw = window.innerWidth, vh = window.innerHeight, narrow = vw < 720;
   const coverH = narrow ? vh * 0.42 : Math.min(vh * 0.6, 480), coverW = coverH * 0.66;
   const x = narrow ? (vw - coverW) / 2 : Math.max(24, vw / 2 - coverW - 40), y = narrow ? 72 : (vh - coverH) / 2;
@@ -27,6 +31,7 @@ export function BookDetail({ book: b, rect, onChange, onRemove, onClose, onStep,
         left: narrow ? 24 : x + coverW + 56, top: narrow ? y + coverH + 24 : y, right: 24 }}>
         <p className="label">{b.status === "read" ? (b.finished ? `Finished ${b.finished}` : "Read") : STATUS_LABEL[b.status]}</p>
         <h2>{b.title}</h2><p className="author">{b.author}</p>
+        {b.series && <p className="label" style={{ margin: "-8px 0 16px" }}>{b.series} · Book {b.seriesNo}</p>}
         {b.blurb && <p className="blurb">{b.blurb}</p>}
         <p className="stars">{b.rating ? "★".repeat(b.rating) + "☆".repeat(5 - b.rating) : "Unrated"}</p>
         <div className="status-set" role="group" aria-label="Reading status">
@@ -41,6 +46,18 @@ export function BookDetail({ book: b, rect, onChange, onRemove, onClose, onStep,
             <label>Page <input type="number" min={0} max={b.pages || undefined} value={b.page} onChange={(e) => onChange({ page: Math.max(0, b.pages ? Math.min(b.pages, +e.target.value || 0) : +e.target.value || 0) })} />{b.pages > 0 ? ` of ${b.pages} · ${Math.round((b.page / b.pages) * 100)}%` : ""}</label>
           </div>
         )}
+        <div className="cover-edit">
+          <button onClick={() => setEditCover(!editCover)} aria-expanded={editCover}>{editCover ? "Close" : "Change cover"}</button>
+          {editCover && (
+            <div className="cover-opts">
+              <label className="file">Upload image<input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { onChange({ cover: await fileToCover(f) }); setCoverErr(""); setEditCover(false); } catch (er) { setCoverErr((er as Error).message); } e.target.value = ""; }} /></label>
+              <div className="url-row"><input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="or paste an image link" aria-label="Cover image link" />
+                <button disabled={!/^https?:\/\//i.test(url.trim())} onClick={() => { onChange({ cover: url.trim() }); setUrl(""); setEditCover(false); }}>Use</button></div>
+              {hasCustomCover && <button onClick={() => { onChange({ cover: "" }); setEditCover(false); }}>Use original cover</button>}
+              {coverErr && <p className="note">{coverErr}</p>}
+            </div>
+          )}
+        </div>
         <div className="steps">
           <button disabled={!canStep[0]} onClick={() => onStep(-1)}>Previous</button>
           <button disabled={!canStep[1]} onClick={() => onStep(1)}>Next</button>

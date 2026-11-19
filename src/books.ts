@@ -1,6 +1,6 @@
 // Home library, imported from library_20261119_203714.csv
 export type Status = "tbr" | "reading" | "read" | "dnf";
-export type RawBook = { id: string; title: string; author: string; year: number; pages: number; isbn: string; genres: string[]; blurb: string; rating: number; finished: string; publisher?: string; status?: Status; page?: number };
+export type RawBook = { id: string; title: string; author: string; year: number; pages: number; isbn: string; genres: string[]; blurb: string; rating: number; finished: string; publisher?: string; status?: Status; page?: number; cover?: string; series?: string; seriesNo?: number };
 export const rawBooks: RawBook[] = [
  {
   "id": "ruthless-vows-8267",
@@ -17,7 +17,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "",
   "rating": 0,
   "finished": "",
-  "publisher": ""
+  "publisher": "",
+  "series": "Letters of Enchantment",
+  "seriesNo": 2
  },
  {
   "id": "little-life-5038",
@@ -64,7 +66,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "When two young rival journalists find love through a magical connection, they must face the depths of hell, in a war among gods, to seal their fate forever.. After centuries of sleep, the gods are warring again.",
   "rating": 0,
   "finished": "",
-  "publisher": "Magpie"
+  "publisher": "Magpie",
+  "series": "Letters of Enchantment",
+  "seriesNo": 1
  },
  {
   "id": "aristotle-and-dante-dive-into-the-wa-5278",
@@ -81,7 +85,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "The highly anticipated sequel to the beloved cult classic about family, friendship and first love, from award-winning author Benjamin Alire Sáenz.",
   "rating": 0,
   "finished": "",
-  "publisher": "Simon & Schuster Children's"
+  "publisher": "Simon & Schuster Children's",
+  "series": "Aristotle and Dante",
+  "seriesNo": 2
  },
  {
   "id": "the-son-of-neptune-5735",
@@ -97,7 +103,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "This is the second title in this number one, bestselling spin-off series from Percy Jackson creator, Rick Riordan. This crazy messed up world of gods and monsters is Percy Jackson's reality, which pretty much sucks for him.",
   "rating": 0,
   "finished": "",
-  "publisher": "Puffin"
+  "publisher": "Puffin",
+  "series": "Heroes of Olympus",
+  "seriesNo": 2
  },
  {
   "id": "the-mark-of-athena-5766",
@@ -113,7 +121,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "",
   "rating": 0,
   "finished": "",
-  "publisher": "Penguin Books Ltd"
+  "publisher": "Penguin Books Ltd",
+  "series": "Heroes of Olympus",
+  "seriesNo": 3
  },
  {
   "id": "house-of-earth-and-blood-6172",
@@ -176,7 +186,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "I was a god, once. Until I was cast out by my father, Zeus. Now I'm an awkward mortal teenager called Lester. My way out. A series of scary and dangerous trials, of course.",
   "rating": 0,
   "finished": "",
-  "publisher": "Penguin UK"
+  "publisher": "Penguin UK",
+  "series": "The Trials of Apollo",
+  "seriesNo": 3
  },
  {
   "id": "the-frighteners-4506",
@@ -208,7 +220,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "This Printz Honor Book is a “tender, honest exploration of identity” (Publishers Weekly) that distills lyrical truths about family and friendship.Aristotle is an angry teen with a brother in prison.",
   "rating": 0,
   "finished": "",
-  "publisher": "Simon & Schuster Books for Young Readers"
+  "publisher": "Simon & Schuster Books for Young Readers",
+  "series": "Aristotle and Dante",
+  "seriesNo": 1
  },
  {
   "id": "the-cruel-prince-7277",
@@ -272,7 +286,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "The third thrilling book in the bestselling, award-winning A Good Girl's Guide to Murder series",
   "rating": 0,
   "finished": "",
-  "publisher": "Electric Monkey"
+  "publisher": "Electric Monkey",
+  "series": "A Good Girl's Guide to Murder",
+  "seriesNo": 3
  },
  {
   "id": "the-lost-hero-5491",
@@ -288,7 +304,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "This is the number one, bestselling title in this new spin-off series from Percy Jackson creator, Rick Riordan. Old enemies awaken as camp half-blood's new arrivals prepare for war.",
   "rating": 0,
   "finished": "",
-  "publisher": "Puffin Books"
+  "publisher": "Puffin Books",
+  "series": "Heroes of Olympus",
+  "seriesNo": 1
  },
  {
   "id": "the-inheritance-games-6178",
@@ -335,7 +353,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "",
   "rating": 0,
   "finished": "",
-  "publisher": "Katherine Tegen Books"
+  "publisher": "Katherine Tegen Books",
+  "series": "Truly Devious",
+  "seriesNo": 2
  },
  {
   "id": "project-hail-mary-7468",
@@ -366,7 +386,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "Ellingham Academy is a famous private school in Vermont for the brightest thinkers, inventors, and artists.",
   "rating": 0,
   "finished": "",
-  "publisher": "HarperCollins"
+  "publisher": "HarperCollins",
+  "series": "Truly Devious",
+  "seriesNo": 1
  },
  {
   "id": "the-girl-in-the-glass-case-4373",
@@ -412,7 +434,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "We were in the square, in the square where I'd run, holding her, carrying her, telling her to stay alive, stay alive till we got safe, till we got to Haven so I could save her - But there weren't no safety, no safety at all, there was just him and his men.",
   "rating": 0,
   "finished": "",
-  "publisher": "Walker Books Ltd"
+  "publisher": "Walker Books Ltd",
+  "series": "Chaos Walking",
+  "seriesNo": 2
  },
  {
   "id": "the-alchemist-4980",
@@ -492,7 +516,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "A special anniversary edition, with a striking new cover design, to celebrate 10 years of the Chaos Walking trilogy.Prentisstown isn't like other towns. Everyone can hear everyone else's thoughts in a constant, overwhelming Noise.",
   "rating": 0,
   "finished": "",
-  "publisher": "Walker Books Ltd"
+  "publisher": "Walker Books Ltd",
+  "series": "Chaos Walking",
+  "seriesNo": 1
  },
  {
   "id": "i-am-number-four-3570",
@@ -524,7 +550,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "The case is closed. Five years ago, schoolgirl Andie Bell was murdered by Sal Singh. The police know he did it. Everyone in town knows he did it. Almost everyone.",
   "rating": 0,
   "finished": "",
-  "publisher": "Electric Monkey"
+  "publisher": "Electric Monkey",
+  "series": "A Good Girl's Guide to Murder",
+  "seriesNo": 1
  },
  {
   "id": "normal-people-4650",
@@ -666,7 +694,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "Juliet Young always writes letters to her mother, a world-traveling photojournalist. Even after her mother's death, she leaves letters at her grave. It's the only way Juliet can cope.",
   "rating": 0,
   "finished": "",
-  "publisher": "Bloomsbury Childrens"
+  "publisher": "Bloomsbury Childrens",
+  "series": "Letters to the Lost",
+  "seriesNo": 1
  },
  {
   "id": "more-than-we-can-tell-5079",
@@ -682,7 +712,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "This is a story about learning to be fearless and set your secrets free. An intense and gripping novel that will speak to fans of John Green and Jennifer Niven.",
   "rating": 0,
   "finished": "",
-  "publisher": "Bloomsbury"
+  "publisher": "Bloomsbury",
+  "series": "Letters to the Lost",
+  "seriesNo": 2
  },
  {
   "id": "call-it-what-you-want-5344",
@@ -850,7 +882,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "Only Willow has the power to defeat the malevolent Church of Angels - and they will stop at nothing to destroy her. However, Willow is not alone. She is with Alex, a trained Angel Killer - and her one true love.",
   "rating": 0,
   "finished": "",
-  "publisher": "Usborne Books"
+  "publisher": "Usborne Books",
+  "series": "Angel Trilogy",
+  "seriesNo": 2
  },
  {
   "id": "angel-fever-2393",
@@ -867,7 +901,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "Willow and Alex are mankind's only hope. The world is devastated, and the angels are slowly enslaving all humanity, moving survivors into camps where they can devour their energy, causing slow but certain death.",
   "rating": 0,
   "finished": "",
-  "publisher": "Usborne Publishing Ltd"
+  "publisher": "Usborne Publishing Ltd",
+  "series": "Angel Trilogy",
+  "seriesNo": 3
  },
  {
   "id": "angel-1969",
@@ -884,7 +920,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "Willow knows she's different from other girls. And not just because she loves tinkering around with cars. Willow has a gift.",
   "rating": 0,
   "finished": "",
-  "publisher": "Usborne Publishing Ltd"
+  "publisher": "Usborne Publishing Ltd",
+  "series": "Angel Trilogy",
+  "seriesNo": 1
  },
  {
   "id": "pink-pages-9923",
@@ -947,7 +985,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "The god Apollo, cast down to earth and trapped in the form of a gawky teenage boy as punishment, must set off on the second of his harrowing (and hilarious) trials.",
   "rating": 0,
   "finished": "",
-  "publisher": "Puffin"
+  "publisher": "Puffin",
+  "series": "The Trials of Apollo",
+  "seriesNo": 2
  },
  {
   "id": "the-hidden-oracle-3929",
@@ -963,7 +1003,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "How do you punish an immortal? By making him human. After angering his father Zeus, the god Apollo is cast down from Olympus. Weak and disoriented, he lands in New York City as a regular teenage boy.",
   "rating": 0,
   "finished": "",
-  "publisher": "Puffin"
+  "publisher": "Puffin",
+  "series": "The Trials of Apollo",
+  "seriesNo": 1
  },
  {
   "id": "the-house-of-hades-9207",
@@ -979,7 +1021,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "A thousand deadly monsters. Three battling demigods. One fatal decision. Hazel looked behind Hecate at the middle gateway. She saw Percy and Annabeth sprawled helplessly before those black-and-silver doors.",
   "rating": 0,
   "finished": "",
-  "publisher": "Puffin"
+  "publisher": "Puffin",
+  "series": "Heroes of Olympus",
+  "seriesNo": 4
  },
  {
   "id": "the-blood-of-olympus-9245",
@@ -995,7 +1039,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "Though the Greek and Roman crew members of the Argo II have made progress in their many quests, they still seem no closer to defeating the earth mother, Gaea. Her giants have risen - all of them - and they're stronger than ever.",
   "rating": 0,
   "finished": "",
-  "publisher": "Puffin Books"
+  "publisher": "Puffin Books",
+  "series": "Heroes of Olympus",
+  "seriesNo": 5
  },
  {
   "id": "circe-4674",
@@ -1026,7 +1072,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "Percy Jackson and the Lightning Thief is the first bestselling book in Rick Riordan's phenomenally successful Percy Jackson series. Half boy. Half God. ALL Hero. Look, I didn't want to be a half-blood.",
   "rating": 0,
   "finished": "",
-  "publisher": "Puffin"
+  "publisher": "Puffin",
+  "series": "Percy Jackson",
+  "seriesNo": 1
  },
  {
   "id": "percy-jackson-and-the-sea-of-monster-6847",
@@ -1042,7 +1090,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "",
   "rating": 0,
   "finished": "",
-  "publisher": "Penguin Books"
+  "publisher": "Penguin Books",
+  "series": "Percy Jackson",
+  "seriesNo": 2
  },
  {
   "id": "percy-jackson-and-the-titan-s-curse-6816",
@@ -1058,7 +1108,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "Percy Jackson and the Titan s Curse is the third book in Rick Riordan s bestselling fantasy adventure series. w with a thrilling new cover look. Half Boy. Half God. ALL Hero.",
   "rating": 0,
   "finished": "",
-  "publisher": "Puffin"
+  "publisher": "Puffin",
+  "series": "Percy Jackson",
+  "seriesNo": 3
  },
  {
   "id": "percy-jackson-and-the-battle-of-the-6830",
@@ -1074,7 +1126,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "",
   "rating": 0,
   "finished": "",
-  "publisher": "Puffin Books"
+  "publisher": "Puffin Books",
+  "series": "Percy Jackson",
+  "seriesNo": 4
  },
  {
   "id": "percy-jackson-and-the-last-olympian-6885",
@@ -1090,7 +1144,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "Percy Jackson and the Last Olympian is the fifth awesome adventure in Rick Riordan s top-ten bestselling series. w with a thrilling new cover look. Half Boy. Half God. All Hero. Most people get presents on their sixteenth birthday.",
   "rating": 0,
   "finished": "",
-  "publisher": "Penguin Books"
+  "publisher": "Penguin Books",
+  "series": "Percy Jackson",
+  "seriesNo": 5
  },
  {
   "id": "percy-jackson-and-the-greek-heroes-2250",
@@ -1106,7 +1162,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "Who cut off Medusa's head? Who was raised by a she-bear? Who tamed Pegasus?",
   "rating": 0,
   "finished": "",
-  "publisher": "Puffin"
+  "publisher": "Puffin",
+  "series": "Percy Jackson",
+  "seriesNo": 6
  },
  {
   "id": "the-serpent-s-shadow-5704",
@@ -1122,7 +1180,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "The Kane Chronicles: The Serpent s Shadow is the final thrilling instalment in award-winning author and Percy Jackson creator Rick Riordan s Kane Chronicles trilogy.",
   "rating": 0,
   "finished": "",
-  "publisher": "Puffin"
+  "publisher": "Puffin",
+  "series": "The Kane Chronicles",
+  "seriesNo": 3
  },
  {
   "id": "the-throne-of-fire-5674",
@@ -1138,7 +1198,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "Ever since the gods of Ancient Egypt were unleashed on the modern world, Carter Kane and his sister, Sadie, have been in big trouble. As descendants of the magical House of Life, they command certain powers.",
   "rating": 0,
   "finished": "",
-  "publisher": "Puffin Books"
+  "publisher": "Puffin Books",
+  "series": "The Kane Chronicles",
+  "seriesNo": 2
  },
  {
   "id": "the-red-pyramid-5507",
@@ -1154,7 +1216,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "Percy Jackson fought Greek Gods.",
   "rating": 0,
   "finished": "",
-  "publisher": "Puffin Books"
+  "publisher": "Puffin Books",
+  "series": "The Kane Chronicles",
+  "seriesNo": 1
  },
  {
   "id": "the-immortals-of-meluha-8742",
@@ -1201,7 +1265,9 @@ export const rawBooks: RawBook[] = [
   "blurb": "This is the electrifying finale to the multiple award-winning trilogy, \"Chaos Walking\". 'War', says the Mayor. 'At last'. Three armies march on New Prentisstown, each one intent on destroying the others.",
   "rating": 0,
   "finished": "",
-  "publisher": "Walker & Company"
+  "publisher": "Walker & Company",
+  "series": "Chaos Walking",
+  "seriesNo": 3
  },
  {
   "id": "atonement-9791",

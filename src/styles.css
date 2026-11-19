@@ -36,7 +36,7 @@ main{position:relative;z-index:1}
 .spine>*{position:absolute}
 .spine-art{inset:0;width:100%;height:100%;object-fit:cover;object-position:left center;opacity:.55;mix-blend-mode:multiply}
 .rule{left:15%;right:15%;height:2px;opacity:.8}
-.vt{inset:24px 0;writing-mode:vertical-rl;text-align:center;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;letter-spacing:.04em}
+.vt{inset:22px 0;display:block;writing-mode:vertical-rl;text-align:center;overflow:hidden;text-overflow:ellipsis;letter-spacing:.03em;text-wrap:balance;text-shadow:0 1px 1px rgba(0,0,0,.25)}
 .sheen,.wear{inset:0;pointer-events:none}.wear{background:linear-gradient(180deg,rgba(255,240,210,.5),transparent 18%,transparent 82%,rgba(0,0,0,.4))}
 .cover-face{left:100%;top:0;height:100%;transform-origin:left center;transform:rotateY(90deg);overflow:hidden;backface-visibility:hidden}
 .cover-face img{width:100%;height:100%;object-fit:cover;display:block}
@@ -84,3 +84,9 @@ main{position:relative;z-index:1}
 .hits button:hover{background:oklch(.28 .008 80/.07)}.hits span{color:var(--muted)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-top:18px}.grid label{font:400 11px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.grid .wide{grid-column:1/-1}
 .modal .status-set{margin:0}.modal .steps{margin-top:24px}
+.cover-edit{margin:0 0 18px}.cover-edit>button,.cover-opts button,.file{background:none;border:1px solid oklch(.28 .008 80/.35);padding:6px 12px;font-size:13px;cursor:pointer}
+.cover-edit>button:hover,.cover-opts button:hover:not(:disabled),.file:hover{background:var(--foreground);color:var(--background)}.cover-opts button:disabled{opacity:.35;cursor:default}
+.cover-opts{display:flex;flex-direction:column;align-items:flex-start;gap:10px;margin-top:10px;max-width:360px}
+.file{display:inline-block}.file input{display:none}
+.url-row{display:flex;gap:8px;width:100%}.url-row input{flex:1;min-width:0;background:none;border:0;border-bottom:1px solid oklch(.28 .008 80/.4);padding:6px 0;font-size:14px;outline:none}
+.grid input[type=file]{font-size:13px;border:0;padding:6px 0}
