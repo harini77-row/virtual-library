@@ -15,7 +15,14 @@ export function Shelf({ books, hiddenId, onOpen, paused }: { books: Book[]; hidd
   }, []);
   useEffect(() => {
     const el = rail.current!; curve();
-    const wheel = (e: WheelEvent) => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { e.preventDefault(); el.scrollLeft += e.deltaY; } };
+    const wheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // already a sideways gesture
+      const max = el.scrollWidth - el.clientWidth;
+      if (max <= 4) return; // shelf fits on screen: let the page scroll
+      if ((e.deltaY < 0 && el.scrollLeft <= 0) || (e.deltaY > 0 && el.scrollLeft >= max - 1)) return; // at either end: let the page scroll
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
     el.addEventListener("wheel", wheel, { passive: false });
     const ro = new ResizeObserver(curve); ro.observe(el);
     return () => { el.removeEventListener("wheel", wheel); ro.disconnect(); };
