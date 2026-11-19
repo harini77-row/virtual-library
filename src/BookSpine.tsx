@@ -7,10 +7,12 @@ const SHEEN: Record<Book["finish"], string> = {
   gloss: "linear-gradient(90deg,rgba(0,0,0,.2),rgba(255,255,255,.28) 35%,rgba(0,0,0,.25))",
   matte: "linear-gradient(90deg,rgba(0,0,0,.18),rgba(255,255,255,.06) 45%,rgba(0,0,0,.22))",
 };
-const FONT = { serif: "var(--font-display)", sans: "var(--font-sans)", mono: "var(--font-mono)" };
+const TIMES = '"Times New Roman", Times, serif';
+const FONT = { serif: TIMES, sans: TIMES, mono: TIMES };
 // Picks a font size (and 1 or 2 lines) so the title fits the spine instead of being clipped.
-function fitTitle(title: string, w: number, h: number, caps: boolean) {
-  const avail = h - 44, cw = caps ? 0.72 : 0.54; let best = { size: 8.5, lines: 1 };
+function fitTitle(title: string, w: number, h: number, caps: boolean, face: Book["face"]) {
+  // Times averages about half an em per glyph (incl. letter-spacing)
+  const base = 0.53, avail = h - 44, cw = caps ? base * 1.3 : base; let best = { size: 8.5, lines: 1 };
   for (const lines of w >= 34 ? [1, 2] : [1]) {
     const size = Math.min(16, (w - 6) / (lines * 1.2), avail / (Math.ceil(title.length / lines) * cw));
     if (size > best.size) best = { size: Math.round(size * 10) / 10, lines };
@@ -22,7 +24,7 @@ export function BookSpine({ book: b, hidden, onOpen }: Props) {
   const btn = useRef<HTMLButtonElement>(null);
   const timer = useRef<number>();
   const [hover, setHover] = useState(false);
-  const title = b.title.split(":")[0].trim(), t = fitTitle(title, b.width, b.height, b.caps);
+  const title = b.title.split(":")[0].trim(), t = fitTitle(title, b.width, b.height, b.caps, b.face);
   const [rect, setRect] = useState<DOMRect | null>(null);
   const [coverOk, setCoverOk] = useState(true);
   useEffect(() => () => window.clearTimeout(timer.current), []);
