@@ -1,8 +1,9 @@
-import type { RawBook } from "../books";
+import type { RawBook, Status } from "../books";
+export const STATUS_LABEL: Record<Status, string> = { tbr: "Want to read", reading: "Currently reading", read: "Read", dnf: "Did not finish" };
 export type Book = RawBook & {
   cover: string; binding: "hardcover" | "paperback" | "mass"; finish: "cloth" | "gloss" | "matte";
   spine: string; band: string; ink: string; face: "serif" | "sans" | "mono"; caps: boolean;
-  width: number; height: number; lean: number; depth: number; wear: number;
+  status: Status; page: number; width: number; height: number; lean: number; depth: number; wear: number;
 };
 const hash = (s: string) => { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
 const r = (h: number, i: number) => ((h >>> (i * 3)) & 1023) / 1023;
@@ -13,7 +14,7 @@ export function derive(b: RawBook): Book {
   const height = Math.round(binding === "hardcover" ? 236 + r(h, 2) * 18 : binding === "mass" ? 196 + r(h, 2) * 14 : 214 + r(h, 2) * 16);
   const hue = h % 360;
   return {
-    ...b, cover: b.isbn ? `https://covers.openlibrary.org/b/isbn/${b.isbn}-L.jpg?default=false` : "",
+    ...b, status: b.status ?? (b.finished ? "read" : "tbr"), page: b.page ?? 0, cover: b.isbn ? `https://covers.openlibrary.org/b/isbn/${b.isbn}-L.jpg?default=false` : "",
     binding, finish, height, width: Math.round(Math.min(58, Math.max(16, p * 0.055 + r(h, 3) * 4))),
     spine: `hsl(${hue} 32% 28%)`, band: `hsl(${(hue + 30) % 360} 45% 55%)`, ink: "#faf7f0",
     face: (["serif", "sans", "mono"] as const)[h % 3], caps: r(h, 4) > 0.6,

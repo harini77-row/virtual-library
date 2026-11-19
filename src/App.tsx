@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { rawBooks } from "./books";
-import { derive, readCoverPalette, type Book } from "./lib/derive";
+import { rawBooks, type RawBook, type Status } from "./books";
+import { AddBook } from "./AddBook";
+import { derive, readCoverPalette, STATUS_LABEL, type Book } from "./lib/derive";
 import { smartSearch } from "./lib/search";
 import { Shelf } from "./Shelf";
 import { BookDetail } from "./BookDetail";
@@ -13,18 +14,36 @@ function TypedTitle() {
 }
 
 export default function App() {
-  const [books, setBooks] = useState<Book[]>(() => rawBooks.map(derive));
+  // Books you add are saved in this browser (localStorage).
+  const CKEY = "virtual-library:custom:v1";
+  const [custom, setCustom] = useState<RawBook[]>(() => { try { return JSON.parse(localStorage.getItem(CKEY) || "[]"); } catch { return []; } });
+  useEffect(() => { try { localStorage.setItem(CKEY, JSON.stringify(custom)); } catch { /* storage unavailable */ } }, [custom]);
+  const [books, setBooks] = useState<Book[]>(() => [...custom, ...rawBooks].map(derive));
+  const [adding, setAdding] = useState(false);
+  const sampled = useRef(new Set<string>());
   const [query, setQuery] = useState(""), [genre, setGenre] = useState<string | null>(null);
   const [aiIds, setAiIds] = useState<string[] | null>(null), [status, setStatus] = useState("");
-  const [open, setOpen] = useState<{ i: number; rect: DOMRect } | null>(null);
+  const [open, setOpen] = useState<{ i: number; rect: DOMRect; ids: string[] } | null>(null);
+  const [statusF, setStatusF] = useState<Status | null>(null);
+  // Reading status and progress are saved in this browser (localStorage).
+  const KEY = "virtual-library:status:v1";
+  const [overlay, setOverlay] = useState<Record<string, { status: Status; page: number }>>(() => { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch { return {}; } });
+  useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(overlay)); } catch { /* storage unavailable */ } }, [overlay]);
+  const live = useMemo(() => books.map((b) => (overlay[b.id] ? { ...b, ...overlay[b.id] } : b)), [books, overlay]);
+  const setBookState = (id: string, patch: { status?: Status; page?: number }) => setOverlay((o) => {
+    const b = live.find((x) => x.id === id)!; const next: { status: Status; page: number } = { ...{ status: b.status, page: b.page }, ...(o[id] ?? {}), ...patch } as { status: Status; page: number };
+    if (patch.status === "read") next.page = b.pages; if (patch.status === "tbr") next.page = 0;
+    return { ...o, [id]: next };
+  });
   const req = useRef(0);
 
-  // Sample real spine colours from cover art once it loads.
-  useEffect(() => { let live = true;
-    books.forEach(async (b) => { if (!b.cover) return; const p = await readCoverPalette(b.cover); if (p && live) setBooks((cur) => cur.map((x) => (x.id === b.id ? { ...x, ...p } : x))); });
-    return () => { live = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Sample real spine colours from cover art once it loads (also for newly added books).
+  useEffect(() => {
+    books.forEach(async (b) => { if (!b.cover || sampled.current.has(b.id)) return; sampled.current.add(b.id);
+      const p = await readCoverPalette(b.cover); if (p) setBooks((cur) => cur.map((x) => (x.id === b.id ? { ...x, ...p } : x))); });
+  }, [books.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  const addBook = (rb: RawBook) => { setCustom((c) => [rb, ...c]); setBooks((cur) => [derive(rb), ...cur]); setAdding(false); };
+  const removeBook = (id: string) => { setCustom((c) => c.filter((b) => b.id !== id)); setBooks((cur) => cur.filter((b) => b.id !== id)); setOpen(null); };
 
   useEffect(() => {
     const q = query.trim(); const id = ++req.current;
@@ -34,14 +53,14 @@ export default function App() {
     return () => clearTimeout(t);
   }, [query, books]);
 
-  const genres = useMemo(() => { const c = new Map<string, number>(); books.forEach((b) => b.genres.forEach((g) => c.set(g, (c.get(g) || 0) + 1))); return [...c].sort((a, b) => b[1] - a[1]).map(([g]) => g); }, [books]);
+  const genres = useMemo(() => { const c = new Map<string, number>(); live.forEach((b) => b.genres.forEach((g) => c.set(g, (c.get(g) || 0) + 1))); return [...c].sort((a, b) => b[1] - a[1]).map(([g]) => g); }, [live]);
   const shown = useMemo(() => {
-    let list = books;
-    if (aiIds) { const order = new Map(aiIds.map((id, i) => [id, i])); list = books.filter((b) => order.has(b.id)).sort((a, b) => order.get(a.id)! - order.get(b.id)!); }
-    return genre ? list.filter((b) => b.genres.includes(genre)) : list;
-  }, [books, aiIds, genre]);
+    let list = live;
+    if (aiIds) { const order = new Map(aiIds.map((id, i) => [id, i])); list = live.filter((b) => order.has(b.id)).sort((a, b) => order.get(a.id)! - order.get(b.id)!); }
+    return list.filter((b) => (!genre || b.genres.includes(genre)) && (!statusF || b.status === statusF));
+  }, [live, aiIds, genre, statusF]);
 
-  const cur = open ? shown[open.i] : null;
+  const cur = open ? live.find((b) => b.id === open.ids[open.i]) ?? null : null;
   return (
     <div className="page grain">
       <div className="haze" />
@@ -52,18 +71,25 @@ export default function App() {
         <div className="search">
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="What are you looking for?" aria-label="Search the library" />
           <span className="label" aria-live="polite">{status}</span>
+          <button className="add-btn" onClick={() => setAdding(true)}>+ Add a book</button>
         </div>
         <div className="pills no-scrollbar">
           <button className={!genre ? "on" : ""} onClick={() => setGenre(null)}>All</button>
           {genres.map((g) => <button key={g} className={genre === g ? "on" : ""} onClick={() => setGenre(genre === g ? null : g)}>{g}</button>)}
         </div>
+        <div className="pills second no-scrollbar" aria-label="Filter by reading status">
+          {(["reading", "tbr", "read", "dnf"] as Status[]).map((s) => (
+            <button key={s} className={statusF === s ? "on" : ""} onClick={() => setStatusF(statusF === s ? null : s)}>{STATUS_LABEL[s]} · {live.filter((b) => b.status === s).length}</button>
+          ))}
+        </div>
       </header>
       <main>
-        {shown.length ? <Shelf books={shown} hiddenId={cur?.id ?? null} paused={!!open} onOpen={(i, rect) => setOpen({ i, rect })} />
+        {shown.length ? <Shelf books={shown} hiddenId={cur?.id ?? null} paused={!!open || adding} onOpen={(i, rect) => setOpen({ i, rect, ids: shown.map((b) => b.id) })} />
           : <p className="empty">No books match. Try different words or clear the genre filter.</p>}
       </main>
-      {open && cur && <BookDetail key="detail" book={cur} rect={open.rect} onClose={() => setOpen(null)}
-        onStep={(d) => setOpen({ ...open, i: open.i + d })} canStep={[open.i > 0, open.i < shown.length - 1]} />}
+      {adding && <AddBook genres={genres} existing={books} onAdd={addBook} onClose={() => setAdding(false)} />}
+      {open && cur && <BookDetail key="detail" book={cur} rect={open.rect} onChange={(p) => setBookState(cur.id, p)} onRemove={cur.id.startsWith("custom-") ? () => removeBook(cur.id) : undefined} onClose={() => setOpen(null)}
+        onStep={(d) => setOpen({ ...open, i: open.i + d })} canStep={[open.i > 0, open.i < open.ids.length - 1]} />}
     </div>
   );
 }

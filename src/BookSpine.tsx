@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import type { Book } from "./lib/derive";
+import { STATUS_LABEL, type Book } from "./lib/derive";
 export const COVER_W = 178;
 const SHEEN: Record<Book["finish"], string> = {
   cloth: "linear-gradient(90deg,rgba(0,0,0,.28),rgba(255,255,255,.05) 40%,rgba(0,0,0,.3))",
@@ -21,7 +21,7 @@ export function BookSpine({ book: b, hidden, onOpen }: Props) {
   const pull = hover ? 96 : 0, lift = hover ? -26 : 0, lean = hover ? 0 : b.lean;
   return (
     // Outer button never moves, so the pointer target stays put while the book travels.
-    <button ref={btn} className="spine-hit" aria-label={`${b.title} by ${b.author}`}
+    <button ref={btn} className="spine-hit" data-status={b.status} aria-label={`${b.title} by ${b.author}`}
       style={{ width: b.width, height: b.height, zIndex: hover ? 40 : 1, opacity: hidden ? 0 : 1 }}
       onMouseEnter={enter} onMouseLeave={leave} onFocus={enter} onBlur={leave}
       onClick={() => onOpen(btn.current!.getBoundingClientRect())}>
@@ -32,6 +32,8 @@ export function BookSpine({ book: b, hidden, onOpen }: Props) {
           {b.title.split(":")[0]}
         </span>
         <span className="sheen" style={{ background: SHEEN[b.finish] }} />
+        {b.status === "dnf" && <span className="wash" />}
+        {b.status === "reading" && <span className="ribbon" />}
         <span className="wear" style={{ opacity: b.wear }} />
         <span className="cover-face" style={{ width: COVER_W, background: b.spine }}>
           {b.cover && coverOk ? <img src={b.cover} alt="" /> : <span className="cover-fallback" style={{ color: b.ink }}><b>{b.title}</b><i>{b.author}</i></span>}
@@ -42,6 +44,7 @@ export function BookSpine({ book: b, hidden, onOpen }: Props) {
           <h3>{b.title.split(":")[0]}</h3><p>{b.author}</p>
           <small>{[b.year || null, b.binding, b.rating ? "★".repeat(b.rating) : "Unrated"].filter(Boolean).join("  ")}</small>
           <small>{b.genres.join(", ")}</small>
+          <small>{STATUS_LABEL[b.status]}{b.status === "reading" && b.pages ? ` · ${Math.round((b.page / b.pages) * 100)}%` : ""}</small>
         </div>, document.body)}
     </button>
   );

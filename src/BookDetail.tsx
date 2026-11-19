@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import type { Book } from "./lib/derive";
-type Props = { book: Book; rect: DOMRect; onClose: () => void; onStep: (d: number) => void; canStep: [boolean, boolean] };
-export function BookDetail({ book: b, rect, onClose, onStep, canStep }: Props) {
+import { STATUS_LABEL, type Book } from "./lib/derive";
+import type { Status } from "./books";
+type Props = { book: Book; rect: DOMRect; onChange: (p: { status?: Status; page?: number }) => void; onRemove?: () => void; onClose: () => void; onStep: (d: number) => void; canStep: [boolean, boolean] };
+export function BookDetail({ book: b, rect, onChange, onRemove, onClose, onStep, canStep }: Props) {
   const [out, setOut] = useState(false), [leaving, setLeaving] = useState(false), [coverOk, setCoverOk] = useState(true);
   const vw = window.innerWidth, vh = window.innerHeight, narrow = vw < 720;
   const coverH = narrow ? vh * 0.42 : Math.min(vh * 0.6, 480), coverW = coverH * 0.66;
@@ -24,14 +25,27 @@ export function BookDetail({ book: b, rect, onClose, onStep, canStep }: Props) {
       </div>
       <div className="detail-panel" style={{ opacity: out && !leaving ? 1 : 0, transform: out && !leaving ? "none" : "translateY(14px)",
         left: narrow ? 24 : x + coverW + 56, top: narrow ? y + coverH + 24 : y, right: 24 }}>
-        <p className="label">{b.finished ? `Finished ${b.finished}` : "On the shelf"}</p>
+        <p className="label">{b.status === "read" ? (b.finished ? `Finished ${b.finished}` : "Read") : STATUS_LABEL[b.status]}</p>
         <h2>{b.title}</h2><p className="author">{b.author}</p>
         {b.blurb && <p className="blurb">{b.blurb}</p>}
         <p className="stars">{b.rating ? "★".repeat(b.rating) + "☆".repeat(5 - b.rating) : "Unrated"}</p>
+        <div className="status-set" role="group" aria-label="Reading status">
+          {(["tbr", "reading", "read", "dnf"] as Status[]).map((s) => (
+            <button key={s} className={b.status === s ? "on" : ""} aria-pressed={b.status === s} onClick={() => onChange({ status: s })}>{STATUS_LABEL[s]}</button>
+          ))}
+        </div>
+        {b.status === "reading" && (
+          <div className="progress">
+            {b.pages > 0 && <><div className="bar"><span style={{ width: `${Math.round((b.page / b.pages) * 100)}%` }} /></div>
+            <input type="range" min={0} max={b.pages} value={b.page} aria-label="Pages read" onChange={(e) => onChange({ page: +e.target.value })} /></>}
+            <label>Page <input type="number" min={0} max={b.pages || undefined} value={b.page} onChange={(e) => onChange({ page: Math.max(0, b.pages ? Math.min(b.pages, +e.target.value || 0) : +e.target.value || 0) })} />{b.pages > 0 ? ` of ${b.pages} · ${Math.round((b.page / b.pages) * 100)}%` : ""}</label>
+          </div>
+        )}
         <div className="steps">
           <button disabled={!canStep[0]} onClick={() => onStep(-1)}>Previous</button>
           <button disabled={!canStep[1]} onClick={() => onStep(1)}>Next</button>
           <button onClick={close}>Shelve it</button>
+          {onRemove && <button onClick={() => window.confirm("Remove this book from your shelf?") && onRemove()}>Remove</button>}
         </div>
       </div>
     </div>
