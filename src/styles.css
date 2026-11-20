@@ -131,3 +131,16 @@ h1{font-weight:400;font-style:italic;letter-spacing:.01em;margin-bottom:0}
 .detail-cover{border:1px solid rgba(43,29,16,.4)}
 .modal{border:1px solid #8a6a3c}
 @media (max-width:640px){body{font-size:17px}.plate{letter-spacing:.12em;padding:1px 12px}}
+
+/* ===== Bookcase rows with compartments (replaces single scrolling rails) ===== */
+.row{display:flex;align-items:stretch}
+.comp{position:relative;display:flex;flex-direction:column;justify-content:flex-end;flex:1 1 auto;min-width:0}
+.comp:hover,.comp:focus-within{z-index:5}
+.books{display:flex;align-items:flex-end;gap:1px;padding:46px 14px 0;perspective:1400px;perspective-origin:50% 100%}
+.books>*{flex:none}
+.divider{flex:none;width:14px;background:repeating-linear-gradient(180deg,rgba(0,0,0,.08) 0 2px,transparent 2px 9px),linear-gradient(90deg,#33200f,#6b4528 45%,#4a2f1b 60%,#2a190c);box-shadow:-3px 0 8px rgba(0,0,0,.5),3px 0 8px rgba(0,0,0,.5);position:relative;z-index:2}
+.plate{max-width:calc(100% - 16px);overflow:hidden;text-overflow:ellipsis;font-size:13px;letter-spacing:.14em}
+.interior>.row:first-child .books{padding-top:56px}
+
+/* books lean from the base so they never swing over their neighbours */
+.spine{transform-origin:50% 100%}

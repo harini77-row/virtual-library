@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { rawBooks, type RawBook, type Status } from "./books";
 import { AddBook } from "./AddBook";
 import { derive, groupSeries, readCoverPalette, STATUS_LABEL, type Book } from "./lib/derive";
 import { smartSearch } from "./lib/search";
-import { Shelf } from "./Shelf";
+import { Compartment } from "./Shelf";
+import { packRows } from "./lib/layout";
 import { BookDetail } from "./BookDetail";
 
 const FULL = "Welcome to my library";
@@ -70,6 +71,10 @@ export default function App() {
     shown.forEach((b) => { const g = b.genres[0] ?? "Unsorted"; if (!m.has(g)) m.set(g, []); m.get(g)!.push(b); });
     return [...m].sort((a, b) => b[1].length - a[1].length).map(([label, books]) => ({ label, books }));
   }, [shown, aiIds, genre]);
+  const interior = useRef<HTMLDivElement>(null);
+  const [W, setW] = useState(1100);
+  useLayoutEffect(() => { const el = interior.current!; const ro = new ResizeObserver(() => setW(el.clientWidth)); ro.observe(el); setW(el.clientWidth); return () => ro.disconnect(); }, []);
+  const rows = useMemo(() => packRows(shelves, W), [shelves, W]);
   const ordered = useMemo(() => shelves.flatMap((s) => s.books), [shelves]);
   const cur = open ? live.find((b) => b.id === open.ids[open.i]) ?? null : null;
   return (
@@ -96,10 +101,17 @@ export default function App() {
         </div>
       </header>
       <main>
-        <div className="case"><div className="interior">
-          {shelves.length ? shelves.map((s) => (
-            <Shelf key={s.label} label={s.label} books={s.books} hiddenId={cur?.id ?? null}
-              onOpen={(b, rect) => setOpen({ i: ordered.findIndex((x) => x.id === b.id), rect, ids: ordered.map((x) => x.id) })} />
+        <div className="case"><div className="interior" ref={interior}>
+          {rows.length ? rows.map((row, ri) => (
+            <div className="row" key={ri}>
+              {row.map((c, ci) => (
+                <Fragment key={c.key}>
+                  {ci > 0 && <div className="divider" />}
+                  <Compartment comp={c} hiddenId={cur?.id ?? null}
+                    onOpen={(b, rect) => setOpen({ i: ordered.findIndex((x) => x.id === b.id), rect, ids: ordered.map((x) => x.id) })} />
+                </Fragment>
+              ))}
+            </div>
           )) : <p className="empty">No books match. Try different words or clear the filters.</p>}
         </div></div>
       </main>

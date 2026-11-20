@@ -29,6 +29,7 @@ export function BookSpine({ book: b, hidden, onOpen }: Props) {
   const [coverOk, setCoverOk] = useState(true);
   useEffect(() => () => window.clearTimeout(timer.current), []);
   useEffect(() => setCoverOk(true), [b.cover]);
+  useEffect(() => { if (!hover) return; const off = () => setHover(false); window.addEventListener("scroll", off, { passive: true }); return () => window.removeEventListener("scroll", off); }, [hover]);
   const enter = () => { window.clearTimeout(timer.current); setRect(btn.current!.getBoundingClientRect()); setHover(true); };
   const leave = () => { timer.current = window.setTimeout(() => setHover(false), 90); };
   const pull = hover ? 96 : 0, lift = hover ? -26 : 0, lean = hover ? 0 : b.lean;
@@ -52,7 +53,7 @@ export function BookSpine({ book: b, hidden, onOpen }: Props) {
         </span>
       </span>
       {hover && rect && createPortal(
-        <div className="hover-card" style={{ left: rect.left + rect.width / 2, top: Math.max(8, rect.top - 14) }} onMouseEnter={enter} onMouseLeave={leave}>
+        <div className="hover-card" style={{ left: Math.max(132, Math.min(window.innerWidth - 132, rect.left + rect.width / 2)), top: rect.top < 190 ? rect.bottom + 14 : rect.top - 14, transform: rect.top < 190 ? "translate(-50%,0)" : "translate(-50%,-100%)" }} onMouseEnter={enter} onMouseLeave={leave}>
           <h3>{b.title.split(":")[0]}</h3><p>{b.author}</p>
           <small>{[b.year || null, b.binding, b.rating ? "★".repeat(b.rating) : "Unrated"].filter(Boolean).join("  ")}</small>
           <small>{b.genres.join(", ")}</small>

@@ -8,17 +8,18 @@ export type Book = RawBook & {
 const hash = (s: string) => { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
 const r = (h: number, i: number) => ((h >>> (i * 3)) & 1023) / 1023;
 export function derive(b: RawBook): Book {
-  const h = hash(b.id + b.title), p = b.pages || 300;
+  const h = hash(b.id + b.title), p = b.pages || 340;
+  const width = Math.round(Math.min(58, Math.max(20, p * 0.055 + r(h, 3) * 4)));
   const binding = p > 420 ? "hardcover" : p < 260 ? "mass" : "paperback";
   const finish = binding === "hardcover" ? "cloth" : r(h, 1) > 0.5 ? "gloss" : "matte";
   const height = Math.round(binding === "hardcover" ? 236 + r(h, 2) * 18 : binding === "mass" ? 196 + r(h, 2) * 14 : 214 + r(h, 2) * 16);
   const hue = h % 360;
   return {
     ...b, status: b.status ?? (b.finished ? "read" : "tbr"), page: b.page ?? 0, cover: b.cover ?? (b.isbn ? `https://covers.openlibrary.org/b/isbn/${b.isbn}-L.jpg?default=false` : ""),
-    binding, finish, height, width: Math.round(Math.min(58, Math.max(16, p * 0.055 + r(h, 3) * 4))),
+    binding, finish, height, width,
     spine: `hsl(${hue} 32% 28%)`, band: `hsl(${(hue + 30) % 360} 45% 55%)`, ink: "#f3e6c4",
     face: (["serif", "sans", "mono"] as const)[h % 3], caps: r(h, 4) > 0.6,
-    lean: -Math.round(r(h, 5) * 50) / 10, depth: Math.round((r(h, 6) * 14 - 7) * 10) / 10, wear: Math.round(r(h, 7) * 35) / 100,
+    lean: width < 26 ? 0 : -Math.round(r(h, 5) * 12) / 10, depth: Math.round((r(h, 6) * 4 - 2) * 10) / 10, wear: Math.round(r(h, 7) * 35) / 100,
   };
 }
 export function readCoverPalette(src: string): Promise<{ spine: string; band: string; ink: string } | null> {
