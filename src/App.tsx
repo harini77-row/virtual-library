@@ -62,13 +62,23 @@ export default function App() {
     return list.filter((b) => (!genre || b.genres.includes(genre)) && (!statusF || b.status === statusF));
   }, [live, aiIds, genre, statusF]);
 
+  // One shelf per genre (a book sits on the shelf of its first genre). Searching or filtering by genre gives a single shelf.
+  const shelves = useMemo(() => {
+    if (aiIds) return [{ label: "Search results", books: shown }];
+    if (genre) return [{ label: genre, books: shown }];
+    const m = new Map<string, Book[]>();
+    shown.forEach((b) => { const g = b.genres[0] ?? "Unsorted"; if (!m.has(g)) m.set(g, []); m.get(g)!.push(b); });
+    return [...m].sort((a, b) => b[1].length - a[1].length).map(([label, books]) => ({ label, books }));
+  }, [shown, aiIds, genre]);
+  const ordered = useMemo(() => shelves.flatMap((s) => s.books), [shelves]);
   const cur = open ? live.find((b) => b.id === open.ids[open.i]) ?? null : null;
   return (
     <div className="page grain">
       <div className="haze" />
       <header>
-        <p className="label">A personal archive</p>
+        <p className="label">Ex libris</p>
         <TypedTitle />
+        <p className="orn" aria-hidden>❦</p>
         <p className="label count">{shown.length} {shown.length === 1 ? "volume" : "volumes"}</p>
         <div className="search">
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="What are you looking for?" aria-label="Search the library" />
@@ -86,8 +96,12 @@ export default function App() {
         </div>
       </header>
       <main>
-        {shown.length ? <Shelf books={shown} hiddenId={cur?.id ?? null} paused={!!open || adding} onOpen={(i, rect) => setOpen({ i, rect, ids: shown.map((b) => b.id) })} />
-          : <p className="empty">No books match. Try different words or clear the genre filter.</p>}
+        <div className="case"><div className="interior">
+          {shelves.length ? shelves.map((s) => (
+            <Shelf key={s.label} label={s.label} books={s.books} hiddenId={cur?.id ?? null}
+              onOpen={(b, rect) => setOpen({ i: ordered.findIndex((x) => x.id === b.id), rect, ids: ordered.map((x) => x.id) })} />
+          )) : <p className="empty">No books match. Try different words or clear the filters.</p>}
+        </div></div>
       </main>
       {adding && <AddBook genres={genres} existing={books} onAdd={addBook} onClose={() => setAdding(false)} />}
       {open && cur && <BookDetail key="detail" book={cur} rect={open.rect} hasCustomCover={!!overlay[cur.id]?.cover} onChange={(p) => { setBookState(cur.id, p); if (p.cover !== undefined) recolor(cur.id, p.cover || books.find((x) => x.id === cur.id)?.cover || ""); }} onRemove={cur.id.startsWith("custom-") ? () => removeBook(cur.id) : undefined} onClose={() => setOpen(null)}

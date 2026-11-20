@@ -16,7 +16,7 @@ export function derive(b: RawBook): Book {
   return {
     ...b, status: b.status ?? (b.finished ? "read" : "tbr"), page: b.page ?? 0, cover: b.cover ?? (b.isbn ? `https://covers.openlibrary.org/b/isbn/${b.isbn}-L.jpg?default=false` : ""),
     binding, finish, height, width: Math.round(Math.min(58, Math.max(16, p * 0.055 + r(h, 3) * 4))),
-    spine: `hsl(${hue} 32% 28%)`, band: `hsl(${(hue + 30) % 360} 45% 55%)`, ink: "#faf7f0",
+    spine: `hsl(${hue} 32% 28%)`, band: `hsl(${(hue + 30) % 360} 45% 55%)`, ink: "#f3e6c4",
     face: (["serif", "sans", "mono"] as const)[h % 3], caps: r(h, 4) > 0.6,
     lean: -Math.round(r(h, 5) * 50) / 10, depth: Math.round((r(h, 6) * 14 - 7) * 10) / 10, wear: Math.round(r(h, 7) * 35) / 100,
   };
@@ -35,7 +35,7 @@ export function readCoverPalette(src: string): Promise<{ spine: string; band: st
       for (let i = 0; i < all.length; i += 4) { const mx = Math.max(all[i], all[i+1], all[i+2]), mn = Math.min(all[i], all[i+1], all[i+2]), l = (mx + mn) / 510, s = mx === mn ? 0 : (mx - mn) / 255;
         if (l > 0.25 && l < 0.75 && s > bs) { bs = s; best = [all[i], all[i+1], all[i+2]]; } }
       const lum = (0.299 * R + 0.587 * G + 0.114 * B) / 255;
-      res({ spine: `rgb(${R|0} ${G|0} ${B|0})`, band: `rgb(${best.map(v => v|0).join(" ")})`, ink: lum > 0.55 ? "#241f19" : "#faf7f0" });
+      res({ spine: `rgb(${R|0} ${G|0} ${B|0})`, band: `rgb(${best.map(v => v|0).join(" ")})`, ink: lum > 0.55 ? "#2b1d10" : "#f3e6c4" });
     } catch { res(null); } };
     img.src = src;
   });

@@ -39,7 +39,7 @@ export function BookSpine({ book: b, hidden, onOpen }: Props) {
       onMouseEnter={enter} onMouseLeave={leave} onFocus={enter} onBlur={leave}
       onClick={() => onOpen(btn.current!.getBoundingClientRect())}>
       <span className="spine" style={{ background: b.spine, transform: `rotateY(var(--ry,0deg)) rotateZ(${lean}deg) translateZ(${pull + b.depth}px) translateY(${lift}px)` }}>
-        <span className="rule" style={{ background: b.band, top: 10 }} /><span className="rule" style={{ background: b.band, bottom: 10 }} />
+        <span className="rule" style={{ top: 10 }} /><span className="rule" style={{ bottom: 10 }} />
         <span className="vt" style={{ color: b.ink, fontFamily: FONT[b.face], textTransform: b.caps ? "uppercase" : "none", fontSize: t.size, lineHeight: t.lines === 1 ? `${b.width}px` : 1.15, whiteSpace: t.lines === 1 ? "nowrap" : "normal" }}>
           {title}
         </span>
